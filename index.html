@@ -980,23 +980,12 @@ Exactly this structure:
 }`;
 
             try {
-                // IMPORTANT: The user must provide their own API key.
-                // Since this is for Vercel, they might want to use an environment variable 
-                // but client-side fetch needs it in headers.
-                const apiKey = ""; // USER NEEDS TO ADD KEY HERE OR USE PROXY
-                
-                const response = await fetch("https://api.anthropic.com/v1/messages", {
+                // Call the secure Vercel API proxy
+                const response = await fetch("/api/generate-plan", {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "x-api-key": apiKey,
-                        "anthropic-version": "2023-06-01",
-                        "anthropic-dangerous-direct-browser-access": "true"
-                    },
-                    body: JSON.stringify({
-                        model: "claude-3-5-sonnet-20240620", // Using latest stable as fallback for the requested futuristic one
-                        max_tokens: 1500,
-                        messages: [{ role: "user", content: prompt }]
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ 
+                        subjectName, daysLeft, hours, totalHours, level, goal, weakTopics 
                     })
                 });
 
