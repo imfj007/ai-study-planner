@@ -1019,24 +1019,23 @@ Exactly this structure:
                     throw new Error(errorData.error || "API call failed");
                 }
 
-                const data = await response.json();
-                const text = data.content.map(b => b.text || "").join("");
-                const clean = text.replace(/```json|```/g, "").trim();
-                const plan = JSON.parse(clean);
-
+                // Simplified: Backend now returns the JSON object directly
+                const plan = await response.json();
                 displayResult(plan, subjectName, daysLeft, goal);
 
             } catch (err) {
                 console.error(err);
                 if (err.message.includes("Local API key required")) {
-                    const key = prompt("⚠️ Looks like you're running locally. To test, please paste your Gemini API Key here (will be stored in this browser only):");
+                    const savedKey = localStorage.getItem('GEMINI_API_KEY') || '';
+                    const key = window.prompt("⚠️ Looks like you're running locally. To test, please paste your Gemini API Key here (will be stored in this browser only):", savedKey);
                     if (key) {
                         localStorage.setItem('GEMINI_API_KEY', key);
                         alert("✅ Key saved! Click Generate again.");
                     }
+                } else {
+                    errorMsg.textContent = err.message || "Something went wrong. Please check your connection and try again.";
+                    errorMsg.style.display = 'block';
                 }
-                errorMsg.textContent = err.message || "Something went wrong. Please check your connection and try again.";
-                errorMsg.style.display = 'block';
                 generateBtn.classList.remove('loading');
                 generateBtn.querySelector('span').textContent = "Generate My Study Plan →";
                 formCard.style.opacity = '1';
