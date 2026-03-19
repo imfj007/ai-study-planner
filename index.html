@@ -7,7 +7,7 @@
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #ffffff;
@@ -75,18 +75,20 @@
         }
 
         h1 {
-            font-size: clamp(24px, 4vw, 36px);
+            font-size: clamp(28px, 5vw, 42px);
             font-weight: 700;
+            letter-spacing: -0.03em;
             color: var(--text-primary);
             margin: 12px 0 8px;
-            line-height: 1.2;
+            line-height: 1.1;
         }
 
         .subtitle {
-            font-size: 15px;
+            font-size: 16px;
+            font-weight: 300;
             color: var(--text-muted);
             line-height: 1.6;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .trust-badges {
@@ -97,12 +99,14 @@
         }
 
         .trust-badge {
-            font-size: 12px;
-            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 400;
+            color: var(--text-dim);
             border: 1px solid var(--border);
             border-radius: 100px;
-            padding: 3px 12px;
-            background: var(--bg-section);
+            padding: 2px 10px;
+            background: #ffffff;
+            transition: all 0.2s;
         }
 
         .divider {
@@ -924,7 +928,7 @@
             loadingState.style.display = 'block';
             loadingState.scrollIntoView({ behavior: 'smooth' });
 
-            const prompt = `You are an expert academic coach. 
+            const aiPrompt = `You are an expert academic coach. 
 Create a detailed personalized study plan.
 
 Student Info:
@@ -997,7 +1001,7 @@ Exactly this structure:
                         const directResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${localKey}`, {
                              method: "POST",
                              headers: { "Content-Type": "application/json" },
-                             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
+                             body: JSON.stringify({ contents: [{ parts: [{ text: aiPrompt }] }], generationConfig: { responseMimeType: "application/json" } })
                         });
                         if (directResp.ok) {
                             const data = await directResp.json();
