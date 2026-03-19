@@ -903,10 +903,8 @@
             return true;
         }
 
-        // 4. CLAUDE API CALL
-        async function buildPlan() {
-            if (!validate()) return;
-
+        // 4. LOCAL GENERATION LOGIC (NO API)
+        function generateLocalPlan() {
             const subjectName = subjectSelect.value === 'Custom' ? customSubjectInput.value : subjectSelect.value;
             const examDate = new Date(examDateInput.value);
             const todayDate = new Date();
@@ -916,7 +914,91 @@
             const totalHours = daysLeft * parseFloat(hours);
             const level = levelSelect.value;
             const goal = goalSelect.value;
-            const weakTopics = weakTopicsInput.value || 'Not specified';
+            const weakTopics = weakTopicsInput.value || 'General areas';
+
+            // Logic for distributing days
+            const phase1Days = Math.max(1, Math.floor(daysLeft * 0.2));
+            const phase3Days = Math.max(1, Math.floor(daysLeft * 0.3));
+            const phase2Days = Math.max(1, daysLeft - phase1Days - phase3Days);
+
+            const plan = {
+                overview: {
+                    strategy: `Focus on building a strong foundation in ${subjectName} before moving to intensive practice. Prioritize ${goal.toLowerCase()} by allocating consistent blocks daily.`,
+                    keyTip: `Focus heavily on ${weakTopics} during your most productive hours of the day.`,
+                    technique: "Active Recall & Pomodoro"
+                },
+                phases: [
+                    {
+                        name: "Foundation & Concepts",
+                        duration: `${phase1Days} days`,
+                        focus: "Mastering core terminology and basic theories.",
+                        emoji: "🧱",
+                        tasks: [
+                            `Skim all chapter summaries for ${subjectName}`,
+                            "Identify and define key terms and formulas",
+                            `Review fundamentals related to ${weakTopics}`,
+                            "Create concept maps for major units"
+                        ]
+                    },
+                    {
+                        name: "Core Mastery & Application",
+                        duration: `${phase2Days} days`,
+                        focus: "Solving complex problems and deep dives.",
+                        emoji: "🎯",
+                        tasks: [
+                            "Complete end-of-chapter exercises",
+                            `Address specific challenges in ${weakTopics}`,
+                            "Watch detailed tutorials on advanced theories",
+                            "Start daily timed practice sessions"
+                        ]
+                    },
+                    {
+                        name: "Intensive Review",
+                        duration: `${phase3Days} days`,
+                        focus: "Final polish, past papers, and mock exams.",
+                        emoji: "⚡",
+                        tasks: [
+                            "Solve at least 3 full-length past papers",
+                            "Review all previously made mistakes",
+                            "Final intensive review of formulas/dates",
+                            "Simulate exam conditions with mock tests"
+                        ]
+                    }
+                ],
+                weeklySchedule: {
+                    "Monday": "New Concept Deep Dive",
+                    "Tuesday": "Problem Solving Practice",
+                    "Wednesday": "Application & Weak Topic Focus",
+                    "Thursday": "Active Recall Session",
+                    "Friday": "Progress Review & Synthesis",
+                    "Saturday": "Mock Quiz or Past Paper",
+                    "Sunday": "Light Review & Planning"
+                },
+                milestones: [
+                    { "week": "Phase 1", "target": "Foundational clarity achieved" },
+                    { "week": "Phase 2", "target": "80% curriculum coverage" },
+                    { "week": "Phase 3", "target": "Exam readiness & speed optimization" }
+                ],
+                resources: [
+                    { "type": "Website", "name": "Khan Academy", "why": "Excellent free conceptual videos" },
+                    { "type": "App", "name": "Anki/Quizlet", "why": "Flashcards for memorizing key facts" },
+                    { "type": "Tool", "name": "Deep Work Timer", "why": "To maintain focus during study blocks" }
+                ],
+                motivationalMessage: `Consistency is key. You have ${totalHours} hours to master ${subjectName}. Stay focused on your goal to ${goal.toLowerCase()}!`
+            };
+
+            return plan;
+        }
+
+        async function buildPlan() {
+            if (!validate()) return;
+
+            const subjectName = subjectSelect.value === 'Custom' ? customSubjectInput.value : subjectSelect.value;
+            const examDate = new Date(examDateInput.value);
+            const todayDate = new Date();
+            todayDate.setHours(0, 0, 0, 0);
+            const daysLeft = Math.ceil((examDate - todayDate) / (1000 * 60 * 60 * 24));
+            const goal = goalSelect.value;
 
             // Loading state
             generateBtn.classList.add('loading');
@@ -924,136 +1006,26 @@
             formCard.style.opacity = '0.5';
             formCard.style.pointerEvents = 'none';
 
-            // We show loadingState div after a short delay or immediately
             loadingState.style.display = 'block';
             loadingState.scrollIntoView({ behavior: 'smooth' });
 
-            const aiPrompt = `You are an expert academic coach. 
-Create a detailed personalized study plan.
-
-Student Info:
-- Subject: ${subjectName}
-- Days until exam: ${daysLeft}  
-- Daily study time: ${hours} hours/day
-- Total available hours: ${totalHours}
-- Current level: ${level}
-- Goal: ${goal}
-- Weak topics: ${weakTopics}
-
-Return ONLY valid JSON. No markdown. 
-No backticks. No explanation. 
-Exactly this structure:
-{
-  "overview": {
-    "strategy": "2 sentence strategy",
-    "keyTip": "single most important tip",
-    "technique": "best technique for this subject"
-  },
-  "phases": [
-    {
-      "name": "Phase Name",
-      "duration": "X days",
-      "focus": "main focus",
-      "emoji": "📚",
-      "tasks": ["task 1","task 2","task 3","task 4"]
-    }
-  ],
-  "weeklySchedule": {
-    "Monday": "specific task",
-    "Tuesday": "specific task",
-    "Wednesday": "specific task",
-    "Thursday": "specific task",
-    "Friday": "specific task",
-    "Saturday": "specific task",
-    "Sunday": "light review or rest"
-  },
-  "milestones": [
-    {
-      "week": "Week 1",
-      "target": "what to achieve",
-      "check": "how to verify"
-    }
-  ],
-  "resources": [
-    {
-      "type": "Book/App/Website/YouTube",
-      "name": "Resource name",
-      "why": "Why it helps for this subject"
-    }
-  ],
-  "motivationalMessage": "Inspiring 2-sentence message personalized to their goal"
-}`;
-
-            try {
-                // Call the secure Vercel API proxy
-                let response = await fetch("/api/generate-plan", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ 
-                        subjectName, daysLeft, hours, totalHours, level, goal, weakTopics 
-                    })
-                });
-
-                // FALLBACK: If 404 (Local or Vercel API not deployed), try direct to API if key exists
-                if (response.status === 404) {
-                    const localKey = localStorage.getItem('GEMINI_API_KEY');
-                    if (localKey) {
-                        const directResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${localKey}`, {
-                             method: "POST",
-                             headers: { "Content-Type": "application/json" },
-                             body: JSON.stringify({ contents: [{ parts: [{ text: aiPrompt }] }], generationConfig: { responseMimeType: "application/json" } })
-                        });
-                        if (directResp.ok) {
-                            const data = await directResp.json();
-                            const planStr = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
-                            displayResult(JSON.parse(planStr), subjectName, daysLeft, goal);
-                            return;
-                        }
-                    } else {
-                        throw new Error("Local API key required for non-Vercel environments.");
-                    }
-                }
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || "API call failed");
-                }
-
-                // Simplified: Backend now returns the JSON object directly
-                const plan = await response.json();
+            // Simulate "AI" thinking for 1.5 seconds for UX
+            setTimeout(() => {
+                const plan = generateLocalPlan();
                 displayResult(plan, subjectName, daysLeft, goal);
-
-            } catch (err) {
-                console.error(err);
-                if (err.message.includes("Local API key required")) {
-                    const savedKey = localStorage.getItem('GEMINI_API_KEY') || '';
-                    const key = window.prompt("⚠️ Looks like you're running locally. To test, please paste your Gemini API Key here (will be stored in this browser only):", savedKey);
-                    if (key) {
-                        localStorage.setItem('GEMINI_API_KEY', key);
-                        alert("✅ Key saved! Click Generate again.");
-                    }
-                } else {
-                    errorMsg.textContent = err.message || "Something went wrong. Please check your connection and try again.";
-                    errorMsg.style.display = 'block';
-                }
+                
                 generateBtn.classList.remove('loading');
                 generateBtn.querySelector('span').textContent = "Generate My Study Plan →";
                 formCard.style.opacity = '1';
                 formCard.style.pointerEvents = 'auto';
-                loadingState.style.display = 'none';
-            }
+            }, 1500);
         }
 
         generateBtn.addEventListener('click', buildPlan);
 
-        // SETTINGS TOGGLE
-        document.getElementById('settingsBtn').onclick = () => {
-            const key = prompt("Enter Gemini API Key (for local testing/bypass):", localStorage.getItem('GEMINI_API_KEY') || '');
-            if (key !== null) {
-                localStorage.setItem('GEMINI_API_KEY', key);
-                alert("Settings updated!");
-            }
-        };
+        // Hide settings btn as it's no longer needed
+        const settingsBtn = document.getElementById('settingsBtn');
+        if (settingsBtn) settingsBtn.style.display = 'none';
 
         // 5. RESPONSE PARSING & DISPLAY
         function displayResult(plan, subject, days, goal) {
