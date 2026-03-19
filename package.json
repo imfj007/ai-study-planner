@@ -1,0 +1,14 @@
+{
+  "name": "ai-study-planner",
+  "version": "1.0.0",
+  "description": "AI Study Plan Generator for AIStudies.blog",
+  "main": "index.html",
+  "scripts": {
+    "start": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vercel": "latest"
+  }
+}

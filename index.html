@@ -616,7 +616,8 @@
 
     <div class="container">
         <!-- SECTION 1: HEADER -->
-        <header>
+        <header style="position: relative;">
+            <div id="settingsBtn" style="position: absolute; right: 0; top: 0; font-size: 18px; cursor: pointer; color: var(--text-dim); padding: 5px;">⚙️</div>
             <div class="tool-badge">✦ Free AI Tool — No Login Required</div>
             <h1>AI Study Plan Generator</h1>
             <p class="subtitle">Enter your subject, exam date, and daily hours. Get your complete personalized study plan in 30 seconds.</p>
@@ -981,7 +982,7 @@ Exactly this structure:
 
             try {
                 // Call the secure Vercel API proxy
-                const response = await fetch("/api/generate-plan", {
+                let response = await fetch("/api/generate-plan", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ 
@@ -989,8 +990,29 @@ Exactly this structure:
                     })
                 });
 
+                // FALLBACK: If 404 (Local or Vercel API not deployed), try direct to API if key exists
+                if (response.status === 404) {
+                    const localKey = localStorage.getItem('GEMINI_API_KEY');
+                    if (localKey) {
+                        const directResp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${localKey}`, {
+                             method: "POST",
+                             headers: { "Content-Type": "application/json" },
+                             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
+                        });
+                        if (directResp.ok) {
+                            const data = await directResp.json();
+                            const planStr = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
+                            displayResult(JSON.parse(planStr), subjectName, daysLeft, goal);
+                            return;
+                        }
+                    } else {
+                        throw new Error("Local API key required for non-Vercel environments.");
+                    }
+                }
+
                 if (!response.ok) {
-                    throw new Error("API call failed");
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "API call failed");
                 }
 
                 const data = await response.json();
@@ -1002,7 +1024,14 @@ Exactly this structure:
 
             } catch (err) {
                 console.error(err);
-                errorMsg.textContent = "Something went wrong. Please check your connection and try again.";
+                if (err.message.includes("Local API key required")) {
+                    const key = prompt("⚠️ Looks like you're running locally. To test, please paste your Gemini API Key here (will be stored in this browser only):");
+                    if (key) {
+                        localStorage.setItem('GEMINI_API_KEY', key);
+                        alert("✅ Key saved! Click Generate again.");
+                    }
+                }
+                errorMsg.textContent = err.message || "Something went wrong. Please check your connection and try again.";
                 errorMsg.style.display = 'block';
                 generateBtn.classList.remove('loading');
                 generateBtn.querySelector('span').textContent = "Generate My Study Plan →";
@@ -1013,6 +1042,15 @@ Exactly this structure:
         }
 
         generateBtn.addEventListener('click', buildPlan);
+
+        // SETTINGS TOGGLE
+        document.getElementById('settingsBtn').onclick = () => {
+            const key = prompt("Enter Gemini API Key (for local testing/bypass):", localStorage.getItem('GEMINI_API_KEY') || '');
+            if (key !== null) {
+                localStorage.setItem('GEMINI_API_KEY', key);
+                alert("Settings updated!");
+            }
+        };
 
         // 5. RESPONSE PARSING & DISPLAY
         function displayResult(plan, subject, days, goal) {
