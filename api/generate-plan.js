@@ -9,10 +9,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  // Switched to GEMINI_API_KEY as requested
+  const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: 'API Key not configured in Vercel' });
+    return res.status(500).json({ error: 'Gemini API Key not configured in Vercel. Please add GEMINI_API_KEY to environment variables.' });
   }
 
   const prompt = `You are an expert academic coach. 
@@ -72,27 +73,35 @@ Exactly this structure:
 }`;
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    // Calling Google Gemini API
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01"
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "claude-3-5-sonnet-20240620",
-        max_tokens: 1500,
-        messages: [{ role: "user", content: prompt }]
+        contents: [{
+          parts: [{ text: prompt }]
+        }],
+        generationConfig: {
+           responseMimeType: "application/json"
+        }
       })
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      return res.status(response.status).json({ error: errorData.error?.message || 'Claude API failed' });
+      return res.status(response.status).json({ error: errorData.error?.message || 'Gemini API failed' });
     }
 
     const data = await response.json();
-    return res.status(200).json(data);
+    
+    // Parse Gemini's response structure
+    const text = data.candidates[0].content.parts[0].text;
+    const clean = text.replace(/```json|```/g, "").trim();
+    const plan = JSON.parse(clean);
+
+    return res.status(200).json({ content: [{ text: JSON.stringify(plan) }] });
 
   } catch (err) {
     console.error(err);
