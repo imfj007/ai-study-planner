@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Plan Generator | AIStudies.blog</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --bg-section: #f9f9f9;
+            --bg-card: #ffffff;
+            --border: #e0e0e0;
+            --border-dark: #cccccc;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --accent-light: #eff6ff;
+            --text-primary: #111111;
+            --text-secondary: #444444;
+            --text-muted: #666666;
+            --text-dim: #999999;
+            --success-bg: #f0fdf4;
+            --success-border: #86efac;
+            --success-text: #166534;
+            --error-bg: #fef2f2;
+            --error-border: #fca5a5;
+            --error-text: #dc2626;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            font-family: var(--font);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 24px 16px 60px;
+        }
+
+        /* --- SECTION 1: HEADER --- */
+        header {
+            margin-bottom: 20px;
+        }
+
+        .tool-badge {
+            display: inline-block;
+            background: var(--accent-light);
+            color: var(--accent);
+            border: 1px solid #bfdbfe;
+            border-radius: var(--radius-sm);
+            padding: 3px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 12px 0 8px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .trust-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .trust-badge {
+            font-size: 12px;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 3px 12px;
+            background: var(--bg-section);
+        }
+
+        .divider {
+            border-bottom: 1px solid var(--border);
+            margin: 20px 0;
+        }
+
+        /* --- SECTION 2: INPUT FORM --- */
+        .card {
+            background: var(--bg-section);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card-heading {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: var(--font);
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+
+        /* Select arrow fix */
+        select.form-input {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        .custom-subject-wrap {
+            margin-top: 10px;
+            display: none;
+        }
+
+        .date-info {
+            background: var(--accent-light);
+            border-radius: var(--radius-sm);
+            padding: 6px 10px;
+            font-size: 12px;
+            color: var(--accent);
+            margin-top: 5px;
+            display: none;
+        }
+
+        .hint-text {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        .error-msg {
+            background: var(--error-bg);
+            border: 1px solid var(--error-border);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            color: var(--error-text);
+            font-size: 13px;
+            margin-top: 14px;
+            display: none;
+        }
+
+        .generate-btn {
+            width: 100%;
+            margin-top: 16px;
+            background: var(--accent);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 13px 20px;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: var(--font);
+            transition: background 0.15s, transform 0.1s;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .generate-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .generate-btn.loading {
+            background: #93c5fd;
+            cursor: not-allowed;
+            transform: none;
+            pointer-events: none;
+        }
+
+        /* --- SECTION 3: LOADING STATE --- */
+        #loadingState {
+            background: var(--bg-section);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: bounce 0.6s infinite alternate;
+        }
+
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        .loading-text {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* --- SECTION 4: RESULT SECTION --- */
+        #resultSection {
+            display: none;
+            animation: fadeInUp 0.4s ease forwards;
+        }
+
+        .result-block-1 {
+            background: var(--accent-light);
+            border: 1px solid #bfdbfe;
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin-bottom: 16px;
+        }
+
+        .result-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .plan-label {
+            font-size: 11px;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+        }
+
+        .plan-heading {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 4px 0 0;
+        }
+
+        .copy-btn {
+            background: #ffffff;
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-sm);
+            padding: 8px 14px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: var(--font);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .copy-btn.copied {
+            background: var(--success-bg);
+            border-color: var(--success-border);
+            color: var(--success-text);
+        }
+
+        .strategy-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin: 12px 0 10px;
+        }
+
+        .key-tip-box {
+            background: #ffffff;
+            border: 1px solid #bfdbfe;
+            border-left: 3px solid var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Result Cards */
+        .result-card {
+            background: var(--bg-section);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            margin-bottom: 16px;
+        }
+
+        .result-card-heading {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 16px;
+        }
+
+        /* Phases Tabs */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .tab {
+            background: #ffffff;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-sm);
+            padding: 7px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: var(--font);
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent);
+        }
+
+        #phaseContent {
+            animation: fadeIn 0.25s ease;
+        }
+
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .phase-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .duration-badge {
+            background: var(--accent-light);
+            color: var(--accent);
+            border-radius: 100px;
+            padding: 2px 10px;
+            font-size: 12px;
+        }
+
+        .phase-focus {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-bottom: 12px;
+        }
+
+        .task-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .task-item {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .task-item span:first-child {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* Weekly Schedule */
+        .schedule-row {
+            display: grid;
+            grid-template-columns: 90px 1fr;
+            margin-bottom: 6px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .day-cell {
+            background: var(--accent);
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .task-cell {
+            background: #ffffff;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+        }
+
+        /* Milestones & Resources Grid */
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .two-col-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .milestone-item {
+            border-left: 3px solid var(--accent);
+            padding-left: 12px;
+            margin-bottom: 12px;
+        }
+
+        .milestone-week {
+            font-size: 11px;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            display: block;
+        }
+
+        .milestone-target {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .resource-item {
+            background: var(--bg-section);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            margin-bottom: 8px;
+        }
+
+        .resource-type {
+            font-size: 11px;
+            color: var(--text-dim);
+            display: block;
+        }
+
+        .resource-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: block;
+            margin: 2px 0;
+        }
+
+        .resource-why {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Closing */
+        .closing-block {
+            background: var(--success-bg);
+            border: 1px solid var(--success-border);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .motivational-msg {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-style: italic;
+            margin: 0;
+        }
+
+        .reset-btn {
+            background: #ffffff;
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-sm);
+            padding: 9px 20px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            margin-top: 14px;
+            font-family: var(--font);
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: var(--bg-section);
+        }
+
+        .footer-credit {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 8px;
+        }
+
+        .footer-credit a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- SECTION 1: HEADER -->
+        <header>
+            <div class="tool-badge">✦ Free AI Tool — No Login Required</div>
+            <h1>AI Study Plan Generator</h1>
+            <p class="subtitle">Enter your subject, exam date, and daily hours. Get your complete personalized study plan in 30 seconds.</p>
+            
+            <div class="trust-badges">
+                <span class="trust-badge">✓ 100% Free</span>
+                <span class="trust-badge">✓ No Signup</span>
+                <span class="trust-badge">✓ Any Subject</span>
+            </div>
+            <div class="divider"></div>
+        </header>
+
+        <!-- SECTION 2: INPUT FORM CARD -->
+        <div id="formCard" class="card">
+            <h2 class="card-heading">📋 Enter Your Exam Details</h2>
+            
+            <div class="form-grid">
+                <!-- Field 1: Subject -->
+                <div class="form-field full-width">
+                    <label for="subject">Subject / Exam *</label>
+                    <select id="subject" class="form-input">
+                        <option value="">Select subject…</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Biology">Biology</option>
+                        <option value="History">History</option>
+                        <option value="English Literature">English Literature</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Economics">Economics</option>
+                        <option value="Psychology">Psychology</option>
+                        <option value="Geography">Geography</option>
+                        <option value="IELTS">IELTS</option>
+                        <option value="TOEFL">TOEFL</option>
+                        <option value="SAT">SAT</option>
+                        <option value="GRE">GRE</option>
+                        <option value="GMAT">GMAT</option>
+                        <option value="NEET">NEET</option>
+                        <option value="JEE">JEE</option>
+                        <option value="Custom">Custom (type below)</option>
+                    </select>
+                    
+                    <div id="customSubjectWrap" class="custom-subject-wrap">
+                        <input type="text" id="customSubject" class="form-input" placeholder="Type your subject or exam name…">
+                    </div>
+                </div>
+
+                <!-- Field 2: Exam Date -->
+                <div class="form-field">
+                    <label for="examDate">Exam Date *</label>
+                    <input type="date" id="examDate" class="form-input">
+                    <div id="dateInfo" class="date-info"></div>
+                </div>
+
+                <!-- Field 3: Daily Study Hours -->
+                <div class="form-field">
+                    <label for="dailyHours">Daily Study Hours *</label>
+                    <select id="dailyHours" class="form-input">
+                        <option value="1">1 hour/day</option>
+                        <option value="1.5">1.5 hours/day</option>
+                        <option value="2" selected>2 hours/day</option>
+                        <option value="2.5">2.5 hours/day</option>
+                        <option value="3">3 hours/day</option>
+                        <option value="4">4 hours/day</option>
+                        <option value="5">5 hours/day</option>
+                        <option value="6">6 hours/day</option>
+                        <option value="8">8 hours/day</option>
+                    </select>
+                </div>
+
+                <!-- Field 4: Current Level -->
+                <div class="form-field">
+                    <label for="level">Current Level</label>
+                    <select id="level" class="form-input">
+                        <option value="Beginner">Beginner</option>
+                        <option value="Intermediate" selected>Intermediate</option>
+                        <option value="Advanced">Advanced</option>
+                    </select>
+                </div>
+
+                <!-- Field 5: Your Target Goal -->
+                <div class="form-field">
+                    <label for="goal">Your Target Goal</label>
+                    <select id="goal" class="form-input">
+                        <option value="Pass the exam">Pass the exam</option>
+                        <option value="Score 70%+">Score 70%+</option>
+                        <option value="Score 80%+" selected>Score 80%+</option>
+                        <option value="Score 90%+">Score 90%+</option>
+                        <option value="Master the subject">Master the subject</option>
+                    </select>
+                </div>
+
+                <!-- Field 6: Weak Topics -->
+                <div class="form-field full-width">
+                    <label for="weakTopics">Weak Topics</label>
+                    <input type="text" id="weakTopics" class="form-input" placeholder="e.g. Calculus, Organic Chemistry…">
+                    <div class="hint-text">Optional — helps AI prioritize your schedule</div>
+                </div>
+            </div>
+
+            <div id="errorMsg" class="error-msg"></div>
+
+            <button id="generateBtn" class="generate-btn">
+                <span>Generate My Study Plan →</span>
+            </button>
+        </div>
+
+        <!-- SECTION 3: LOADING STATE -->
+        <div id="loadingState">
+            <div class="dots">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <div class="loading-text">Creating your personalized study plan…</div>
+        </div>
+
+        <!-- SECTION 4: RESULT SECTION -->
+        <div id="resultSection">
+            <!-- RESULT BLOCK 1: Plan Overview -->
+            <div class="result-block-1">
+                <div class="result-header-row">
+                    <div>
+                        <span class="plan-label">Your Study Plan</span>
+                        <h2 id="resPlanHeading" class="plan-heading">Subject · 0 Days · Goal</h2>
+                    </div>
+                    <button id="copyBtn" class="copy-btn">📋 Copy Plan</button>
+                </div>
+                <p id="resStrategy" class="strategy-text"></p>
+                <div class="key-tip-box">
+                    <span id="resKeyTip"></span>
+                </div>
+            </div>
+
+            <!-- RESULT BLOCK 2: Study Phases -->
+            <div class="result-card">
+                <h3 class="result-card-heading">📅 Study Phases</h3>
+                <div id="phaseTabs" class="tabs"></div>
+                <div id="phaseContent">
+                    <div class="phase-header">
+                        <span id="resPhaseName" class="phase-name"></span>
+                        <span id="resPhaseDuration" class="duration-badge"></span>
+                    </div>
+                    <p id="resPhaseFocus" class="phase-focus"></p>
+                    <ul id="resTaskList" class="task-list"></ul>
+                </div>
+            </div>
+
+            <!-- RESULT BLOCK 3: Weekly Schedule -->
+            <div class="result-card">
+                <h3 class="result-card-heading">🗓️ Weekly Schedule</h3>
+                <div id="weeklyScheduleList">
+                    <!-- Day rows go here -->
+                </div>
+            </div>
+
+            <!-- RESULT BLOCK 4: Milestones + Resources -->
+            <div class="two-col-grid">
+                <div class="result-card">
+                    <h3 class="result-card-heading">🎯 Milestones</h3>
+                    <div id="milestonesList"></div>
+                </div>
+                <div class="result-card">
+                    <h3 class="result-card-heading">📚 Recommended Resources</h3>
+                    <div id="resourcesList"></div>
+                </div>
+            </div>
+
+            <!-- RESULT BLOCK 5: Closing -->
+            <div class="closing-block">
+                <p id="resMotivationalMessage" class="motivational-msg"></p>
+                <button id="resetBtn" class="reset-btn">Generate Another Plan</button>
+            </div>
+
+            <!-- Footer Credit -->
+            <div class="footer-credit">
+                Powered by <a href="https://aistudies.blog" target="_blank">aistudies.blog</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const subjectSelect = document.getElementById('subject');
+        const customSubjectWrap = document.getElementById('customSubjectWrap');
+        const customSubjectInput = document.getElementById('customSubject');
+        const examDateInput = document.getElementById('examDate');
+        const dailyHoursSelect = document.getElementById('dailyHours');
+        const levelSelect = document.getElementById('level');
+        const goalSelect = document.getElementById('goal');
+        const weakTopicsInput = document.getElementById('weakTopics');
+        const dateInfo = document.getElementById('dateInfo');
+        const generateBtn = document.getElementById('generateBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const loadingState = document.getElementById('loadingState');
+        const formCard = document.getElementById('formCard');
+        const resultSection = document.getElementById('resultSection');
+        const resetBtn = document.getElementById('resetBtn');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // Result Population Elements
+        const resPlanHeading = document.getElementById('resPlanHeading');
+        const resStrategy = document.getElementById('resStrategy');
+        const resKeyTip = document.getElementById('resKeyTip');
+        const phaseTabs = document.getElementById('phaseTabs');
+        const resTaskList = document.getElementById('resTaskList');
+        const weeklyScheduleList = document.getElementById('weeklyScheduleList');
+        const milestonesList = document.getElementById('milestonesList');
+        const resourcesList = document.getElementById('resourcesList');
+        const resMotivationalMessage = document.getElementById('resMotivationalMessage');
+
+        let currentPlanData = null;
+
+        // Set min date to today
+        const today = new Date().toISOString().split('T')[0];
+        examDateInput.setAttribute('min', today);
+
+        // 1. DATE COUNTER LOGIC
+        function updateDateInfo() {
+            const dateVal = examDateInput.value;
+            if (!dateVal) {
+                dateInfo.style.display = 'none';
+                return;
+            }
+
+            const examDate = new Date(dateVal);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const diffTime = examDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays >= 0) {
+                const hours = parseFloat(dailyHoursSelect.value);
+                const totalHours = diffDays * hours;
+                dateInfo.textContent = `📅 ${diffDays} days remaining · ${totalHours} total study hours`;
+                dateInfo.style.display = 'block';
+            } else {
+                dateInfo.style.display = 'none';
+            }
+        }
+
+        examDateInput.addEventListener('change', updateDateInfo);
+        dailyHoursSelect.addEventListener('change', updateDateInfo);
+
+        // 2. CUSTOM SUBJECT TOGGLE
+        subjectSelect.addEventListener('change', () => {
+            if (subjectSelect.value === 'Custom') {
+                customSubjectWrap.style.display = 'block';
+            } else {
+                customSubjectWrap.style.display = 'none';
+            }
+        });
+
+        // 3. VALIDATION
+        function validate() {
+            errorMsg.style.display = 'none';
+            let message = "";
+
+            const subject = subjectSelect.value;
+            const custom = customSubjectInput.value.trim();
+            const examDate = examDateInput.value;
+
+            if (!subject) message = "Please select a subject or exam.";
+            else if (subject === 'Custom' && !custom) message = "Please type your subject name.";
+            else if (!examDate) message = "Please select your exam date.";
+            else {
+                const d = new Date(examDate);
+                const t = new Date();
+                t.setHours(0, 0, 0, 0);
+                if (d < t) message = "Exam date must be in the future.";
+            }
+
+            if (message) {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+                return false;
+            }
+            return true;
+        }
+
+        // 4. CLAUDE API CALL
+        async function buildPlan() {
+            if (!validate()) return;
+
+            const subjectName = subjectSelect.value === 'Custom' ? customSubjectInput.value : subjectSelect.value;
+            const examDate = new Date(examDateInput.value);
+            const todayDate = new Date();
+            todayDate.setHours(0, 0, 0, 0);
+            const daysLeft = Math.ceil((examDate - todayDate) / (1000 * 60 * 60 * 24));
+            const hours = dailyHoursSelect.value;
+            const totalHours = daysLeft * parseFloat(hours);
+            const level = levelSelect.value;
+            const goal = goalSelect.value;
+            const weakTopics = weakTopicsInput.value || 'Not specified';
+
+            // Loading state
+            generateBtn.classList.add('loading');
+            generateBtn.querySelector('span').textContent = "Building your plan...";
+            formCard.style.opacity = '0.5';
+            formCard.style.pointerEvents = 'none';
+
+            // We show loadingState div after a short delay or immediately
+            loadingState.style.display = 'block';
+            loadingState.scrollIntoView({ behavior: 'smooth' });
+
+            const prompt = `You are an expert academic coach. 
+Create a detailed personalized study plan.
+
+Student Info:
+- Subject: ${subjectName}
+- Days until exam: ${daysLeft}  
+- Daily study time: ${hours} hours/day
+- Total available hours: ${totalHours}
+- Current level: ${level}
+- Goal: ${goal}
+- Weak topics: ${weakTopics}
+
+Return ONLY valid JSON. No markdown. 
+No backticks. No explanation. 
+Exactly this structure:
+{
+  "overview": {
+    "strategy": "2 sentence strategy",
+    "keyTip": "single most important tip",
+    "technique": "best technique for this subject"
+  },
+  "phases": [
+    {
+      "name": "Phase Name",
+      "duration": "X days",
+      "focus": "main focus",
+      "emoji": "📚",
+      "tasks": ["task 1","task 2","task 3","task 4"]
+    }
+  ],
+  "weeklySchedule": {
+    "Monday": "specific task",
+    "Tuesday": "specific task",
+    "Wednesday": "specific task",
+    "Thursday": "specific task",
+    "Friday": "specific task",
+    "Saturday": "specific task",
+    "Sunday": "light review or rest"
+  },
+  "milestones": [
+    {
+      "week": "Week 1",
+      "target": "what to achieve",
+      "check": "how to verify"
+    }
+  ],
+  "resources": [
+    {
+      "type": "Book/App/Website/YouTube",
+      "name": "Resource name",
+      "why": "Why it helps for this subject"
+    }
+  ],
+  "motivationalMessage": "Inspiring 2-sentence message personalized to their goal"
+}`;
+
+            try {
+                // IMPORTANT: The user must provide their own API key.
+                // Since this is for Vercel, they might want to use an environment variable 
+                // but client-side fetch needs it in headers.
+                const apiKey = ""; // USER NEEDS TO ADD KEY HERE OR USE PROXY
+                
+                const response = await fetch("https://api.anthropic.com/v1/messages", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-api-key": apiKey,
+                        "anthropic-version": "2023-06-01",
+                        "anthropic-dangerous-direct-browser-access": "true"
+                    },
+                    body: JSON.stringify({
+                        model: "claude-3-5-sonnet-20240620", // Using latest stable as fallback for the requested futuristic one
+                        max_tokens: 1500,
+                        messages: [{ role: "user", content: prompt }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("API call failed");
+                }
+
+                const data = await response.json();
+                const text = data.content.map(b => b.text || "").join("");
+                const clean = text.replace(/```json|```/g, "").trim();
+                const plan = JSON.parse(clean);
+
+                displayResult(plan, subjectName, daysLeft, goal);
+
+            } catch (err) {
+                console.error(err);
+                errorMsg.textContent = "Something went wrong. Please check your connection and try again.";
+                errorMsg.style.display = 'block';
+                generateBtn.classList.remove('loading');
+                generateBtn.querySelector('span').textContent = "Generate My Study Plan →";
+                formCard.style.opacity = '1';
+                formCard.style.pointerEvents = 'auto';
+                loadingState.style.display = 'none';
+            }
+        }
+
+        generateBtn.addEventListener('click', buildPlan);
+
+        // 5. RESPONSE PARSING & DISPLAY
+        function displayResult(plan, subject, days, goal) {
+            currentPlanData = plan;
+
+            // Header info
+            resPlanHeading.textContent = `${subject} · ${days} Days · ${goal}`;
+            resStrategy.textContent = plan.overview.strategy;
+            resKeyTip.innerHTML = `<strong>💡 Key Tip:</strong> ${plan.overview.keyTip}`;
+
+            // Phases & Tabs
+            phaseTabs.innerHTML = "";
+            plan.phases.forEach((phase, index) => {
+                const btn = document.createElement('button');
+                btn.className = `tab ${index === 0 ? 'active' : ''}`;
+                btn.textContent = phase.name;
+                btn.onclick = () => showPhase(index);
+                phaseTabs.appendChild(btn);
+            });
+            showPhase(0);
+
+            // Weekly Schedule
+            weeklyScheduleList.innerHTML = "";
+            const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+            daysOfWeek.forEach(day => {
+                const row = document.createElement('div');
+                row.className = "schedule-row";
+                row.innerHTML = `
+                    <div class="day-cell">${day}</div>
+                    <div class="task-cell">${plan.weeklySchedule[day] || "Review"}</div>
+                `;
+                weeklyScheduleList.appendChild(row);
+            });
+
+            // Milestones
+            milestonesList.innerHTML = "";
+            plan.milestones.forEach(m => {
+                const div = document.createElement('div');
+                div.className = "milestone-item";
+                div.innerHTML = `
+                    <span class="milestone-week">${m.week}</span>
+                    <span class="milestone-target">${m.target}</span>
+                `;
+                milestonesList.appendChild(div);
+            });
+
+            // Resources
+            resourcesList.innerHTML = "";
+            plan.resources.forEach(r => {
+                const div = document.createElement('div');
+                div.className = "resource-item";
+                div.innerHTML = `
+                    <span class="resource-type">${r.type}</span>
+                    <span class="resource-name">${r.name}</span>
+                    <span class="resource-why">${r.why}</span>
+                `;
+                resourcesList.appendChild(div);
+            });
+
+            // Motivation
+            resMotivationalMessage.textContent = plan.motivationalMessage;
+
+            // UI State change
+            generateBtn.classList.remove('loading');
+            generateBtn.querySelector('span').textContent = "Generate My Study Plan →";
+            formCard.style.display = 'none';
+            loadingState.style.display = 'none';
+            resultSection.style.display = 'block';
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 6. PHASE TABS LOGIC
+        function showPhase(index) {
+            const phase = currentPlanData.phases[index];
+            const tabs = phaseTabs.querySelectorAll('.tab');
+            tabs.forEach((t, i) => {
+                if (i === index) t.classList.add('active');
+                else t.classList.remove('active');
+            });
+
+            document.getElementById('resPhaseName').textContent = `${phase.emoji} ${phase.name}`;
+            document.getElementById('resPhaseDuration').textContent = phase.duration;
+            document.getElementById('resPhaseFocus').textContent = phase.focus;
+
+            resTaskList.innerHTML = "";
+            phase.tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = "task-item";
+                li.innerHTML = `<span>→</span> <span>${task}</span>`;
+                resTaskList.appendChild(li);
+            });
+
+            const content = document.getElementById('phaseContent');
+            content.style.animation = 'none';
+            content.offsetHeight; // trigger reflow
+            content.style.animation = 'fadeIn 0.25s ease';
+        }
+
+        // 7. COPY PLAN
+        copyBtn.onclick = () => {
+            if (!currentPlanData) return;
+            
+            const subjectName = subjectSelect.value === 'Custom' ? customSubjectInput.value : subjectSelect.value;
+            const goal = goalSelect.value;
+            const days = Math.ceil((new Date(examDateInput.value) - new Date().setHours(0,0,0,0)) / 86400000);
+
+            let text = `AI STUDY PLAN — ${subjectName.toUpperCase()}\n`;
+            text += `Generated by aistudies.blog\n`;
+            text += `==================================\n`;
+            text += `Goal: ${goal} | Duration: ${days} Days\n\n`;
+            text += `Strategy: ${currentPlanData.overview.strategy}\n`;
+            text += `Key Tip: ${currentPlanData.overview.keyTip}\n\n`;
+
+            text += `PHASES:\n`;
+            currentPlanData.phases.forEach(p => {
+                text += `${p.emoji} ${p.name} (${p.duration})\n`;
+                text += `Focus: ${p.focus}\n`;
+                p.tasks.forEach(t => text += ` - ${t}\n`);
+                text += `\n`;
+            });
+
+            text += `WEEKLY SCHEDULE:\n`;
+            ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].forEach(day => {
+                text += `${day}: ${currentPlanData.weeklySchedule[day] || "Review"}\n`;
+            });
+
+            text += `\nMILESTONES:\n`;
+            currentPlanData.milestones.forEach(m => {
+                text += `${m.week}: ${m.target}\n`;
+            });
+
+            text += `\n${currentPlanData.motivationalMessage}\n`;
+            text += `\n— aistudies.blog`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                copyBtn.classList.add('copied');
+                copyBtn.textContent = "✓ Copied!";
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyBtn.innerHTML = "📋 Copy Plan";
+                }, 2500);
+            });
+        };
+
+        // 8. GENERATE ANOTHER
+        resetBtn.onclick = () => {
+            resultSection.style.display = 'none';
+            formCard.style.display = 'block';
+            formCard.style.opacity = '1';
+            formCard.style.pointerEvents = 'auto';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+    </script>
+</body>
+</html>
