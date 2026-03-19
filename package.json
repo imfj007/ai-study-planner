@@ -2,6 +2,7 @@
   "name": "ai-study-planner",
   "version": "1.0.0",
   "description": "AI Study Plan Generator for AIStudies.blog",
+  "type": "module",
   "main": "index.html",
   "scripts": {
     "start": "vercel dev",
